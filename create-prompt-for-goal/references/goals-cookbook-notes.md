@@ -50,6 +50,27 @@ If any ingredient is missing or vague, ask targeted follow-up questions and resc
 /goal <desired end state> verified by <specific evidence> while preserving <constraints>. Use <allowed inputs, tools, or boundaries>. Between iterations, <how Codex should choose the next best action>. If blocked or no valid paths remain, <what Codex should report>.
 ```
 
+## Formatting Long Goal Prompts
+
+If the final Goal prompt is more than 50 words, prefer a sectioned prompt instead of one dense paragraph:
+
+```text
+/goal
+Outcome: <desired end state>
+
+Verification surface: <specific evidence>
+
+Constraints: <what must not regress>
+
+Boundaries: <allowed files, tools, data, and exclusions>
+
+Iteration policy: <how to choose the next action>
+
+Blocked stop condition: <when to stop and what to report>
+```
+
+The headings are part of the prompt. Do not add extra explanation around them.
+
 ## Common Transformations
 
 Weak:

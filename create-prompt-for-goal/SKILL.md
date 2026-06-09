@@ -18,7 +18,7 @@ Never create, activate, execute, or work on the Goal. This skill only gathers mi
 3. Internally score all six contract fields as Pass, Weak, or Missing.
 4. If any field is Weak or Missing, output only targeted follow-up questions.
 5. Repeat until all six fields pass.
-6. When all six fields pass, output only the final `/goal` prompt.
+6. When all six fields pass, output only the final `/goal` prompt. If the prompt is longer than 50 words, format it with short section headings and paragraphs.
 
 ## Goal Fit
 
@@ -80,7 +80,24 @@ Use this shape, adapting it to the user's domain:
 /goal Achieve <outcome>, validated by <specific evidence>, while maintaining <constraints>. Work within <boundaries>. After each attempt, <iteration policy>. If the goal cannot be verified under these limits, stop with <blocked report>.
 ```
 
-Keep the draft compact enough to paste, but include enough detail that another Codex thread can tell when to complete, continue, or stop.
+For prompts longer than 50 words, use section headings inside the prompt:
+
+```text
+/goal
+Outcome: <desired end state>
+
+Verification surface: <specific evidence>
+
+Constraints: <what must not regress>
+
+Boundaries: <allowed files, tools, data, and exclusions>
+
+Iteration policy: <how to choose the next action>
+
+Blocked stop condition: <when to stop and what to report>
+```
+
+Keep the draft compact enough to paste, but include enough detail that another Codex thread can tell when to complete, continue, or stop. Headings in the long format are part of the prompt, not commentary.
 
 ## Output Format
 
@@ -92,13 +109,30 @@ When any field is Weak or Missing, output only questions:
 3. ...
 ```
 
-When all six fields pass, output only a single plain-text `/goal ...` prompt line with no label or code fence:
+When all six fields pass and the prompt is 50 words or fewer, output only a single plain-text `/goal ...` prompt line with no label or code fence:
 
 ```text
 /goal ...
 ```
 
-Do not include labels, rationale, scorecards, assumptions, caveats, setup steps, extra commands to run, or commentary in either mode.
+When all six fields pass and the prompt is more than 50 words, output only the sectioned prompt:
+
+```text
+/goal
+Outcome: ...
+
+Verification surface: ...
+
+Constraints: ...
+
+Boundaries: ...
+
+Iteration policy: ...
+
+Blocked stop condition: ...
+```
+
+Do not include labels outside the prompt, rationale, scorecards, assumptions, caveats, setup steps, extra commands to run, or commentary in either mode.
 
 ## Examples
 
@@ -111,7 +145,18 @@ Make this migration work and keep going until it is done.
 Strong draft:
 
 ```text
-/goal Complete the dependency migration, validated by the repository's migration test suite and a clean local build, while preserving public API behavior and existing lint/type checks. Work only in the migration-related packages, tests, and configuration. After each failed run, inspect the nearest failing evidence, make the smallest targeted change, and rerun the relevant check before broadening scope. If the migration cannot be verified because required upstream fixes or credentials are unavailable, stop with a blocker report naming the missing dependency and the evidence collected.
+/goal
+Outcome: Complete the dependency migration.
+
+Verification surface: Validate completion with the repository's migration test suite and a clean local build.
+
+Constraints: Preserve public API behavior and keep existing lint and type checks passing.
+
+Boundaries: Work only in migration-related packages, tests, and configuration.
+
+Iteration policy: After each failed run, inspect the nearest failing evidence, make the smallest targeted change, and rerun the relevant check before broadening scope.
+
+Blocked stop condition: If required upstream fixes or credentials are unavailable, stop with a blocker report naming the missing dependency and evidence collected.
 ```
 
 Weak request:
@@ -123,7 +168,18 @@ Reproduce this paper as much as possible.
 Strong draft:
 
 ```text
-/goal Produce the strongest evidence-backed reproduction possible from the available paper, data, and local resources, validated by a final report that maps each headline claim to reproduced results, proxy evidence, or blockers. Keep uncertainty labels explicit and avoid claiming exact reproduction without matching artifacts. After each attempt, prioritize the claim with the highest evidence value that is still feasible locally. If exact reproduction is blocked by missing data, seeds, checkpoints, or implementation details, stop with an audit separating confirmed, partially supported, and blocked claims.
+/goal
+Outcome: Produce the strongest evidence-backed reproduction possible from the available paper, data, and local resources.
+
+Verification surface: Validate the work with a final report mapping each headline claim to reproduced results, proxy evidence, or blockers.
+
+Constraints: Keep uncertainty labels explicit and avoid claiming exact reproduction without matching artifacts.
+
+Boundaries: Use only the available paper, data, local resources, and reproducible implementation paths.
+
+Iteration policy: After each attempt, prioritize the feasible claim with the highest evidence value.
+
+Blocked stop condition: If exact reproduction is blocked by missing data, seeds, checkpoints, or implementation details, stop with an audit separating confirmed, partially supported, and blocked claims.
 ```
 
 ## Quality Checks
@@ -138,6 +194,7 @@ Before presenting the draft, verify that:
 - The iteration policy says how to choose the next attempt.
 - The blocked condition prevents endless work or overclaiming.
 - The response is either only follow-up questions or only the final `/goal` prompt.
+- A final prompt longer than 50 words is split into paragraphs with the six section headings.
 - The response does not execute, start, create, activate, or work on the Goal.
 
 ## References
