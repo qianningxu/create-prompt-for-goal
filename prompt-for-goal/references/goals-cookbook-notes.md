@@ -31,6 +31,19 @@ Use these six ingredients:
 5. Iteration policy: how to choose the next useful action after each attempt.
 6. Blocked stop condition: when to stop and report no valid path remains.
 
+## Readiness Standards
+
+Before drafting a final Goal, pressure-test every ingredient:
+
+- Outcome should include the concrete end state, scope, and measurable or inspectable result.
+- Verification surface should name exact evidence, not a generic "test it" instruction.
+- Constraints should identify what must stay true or what risks matter most.
+- Boundaries should make allowed scope explicit, even when the allowed scope is broad.
+- Iteration policy should guide the next attempt after partial success or failure.
+- Blocked stop condition should define when continued work would become speculation, looping, or overclaiming.
+
+If any ingredient is missing or vague, ask targeted follow-up questions and rescore the Goal before drafting. Do not draft from assumptions when a field remains weak or missing.
+
 ## Reusable Pattern
 
 ```text
@@ -70,3 +83,5 @@ For research or reproduction work, define the evidence standard before work begi
 ## Completion Discipline
 
 A Goal should be marked complete only after checking the objective against concrete evidence. Budget limits, plausible progress, and "probably done" are not completion. If the evidence cannot be obtained under the current boundaries, the Goal should end with a blocker report rather than an overclaimed success.
+
+When this skill is only drafting a Goal prompt, it must not run the Goal, start the Goal, or perform any task described by the Goal.

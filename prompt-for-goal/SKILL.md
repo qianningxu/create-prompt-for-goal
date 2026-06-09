@@ -1,6 +1,6 @@
 ---
 name: prompt-for-goal
-description: Turn vague, long-running, or evidence-sensitive user requests into strong Codex `/goal` prompts. Use when the user asks to write, draft, improve, review, or translate a task into a Codex Goal; mentions Goals, `/goal`, persistent objectives, evidence-based completion, "keep working until done", or wants help deciding whether a Goal or a normal prompt fits.
+description: Interactively pressure-test vague, long-running, or evidence-sensitive user requests until all six Codex Goal aspects are strong, then output only a `/goal` prompt. Use when the user asks to write, draft, improve, review, or translate a task into a Codex Goal; mentions Goals, `/goal`, persistent objectives, evidence-based completion, "keep working until done", or wants help deciding whether a Goal or a normal prompt fits.
 ---
 
 # Prompt for Goal
@@ -9,15 +9,16 @@ description: Turn vague, long-running, or evidence-sensitive user requests into 
 
 Use this skill to help users turn plain-language work into a Codex Goal with a clear finish line, verification surface, constraints, boundaries, iteration policy, and blocked stop condition.
 
-Do not create or activate a Goal unless the user explicitly asks to set or start one. By default, draft goal text the user can review.
+Never create, activate, execute, or work on the Goal. This skill only gathers missing Goal details and writes the final Goal prompt.
 
 ## Workflow
 
 1. Decide whether a Goal is appropriate.
 2. Extract the Goal contract from the user's request.
-3. Ask only for missing details that are necessary to make the Goal auditable.
-4. Draft the `/goal` prompt.
-5. Explain any assumptions or tradeoffs briefly.
+3. Internally score all six contract fields as Pass, Weak, or Missing.
+4. If any field is Weak or Missing, output only targeted follow-up questions.
+5. Repeat until all six fields pass.
+6. When all six fields pass, output only the final `/goal` prompt.
 
 ## Goal Fit
 
@@ -40,7 +41,36 @@ Capture these six fields before drafting:
 - Iteration policy: how Codex should choose the next action after each attempt.
 - Blocked stop condition: when Codex should stop and report that no defensible path remains.
 
-If a field is unknown but not critical, write a reasonable assumption into the draft. If a field is critical to safety or auditability, ask one concise question before drafting.
+## Readiness Gate
+
+Do not present a final Goal while any field is Weak or Missing.
+
+Use this internal scorecard before drafting, but do not show it unless the user explicitly asks for the evaluation:
+
+```markdown
+Goal readiness:
+- Outcome: Pass/Weak/Missing - <why>
+- Verification surface: Pass/Weak/Missing - <why>
+- Constraints: Pass/Weak/Missing - <why>
+- Boundaries: Pass/Weak/Missing - <why>
+- Iteration policy: Pass/Weak/Missing - <why>
+- Blocked stop condition: Pass/Weak/Missing - <why>
+```
+
+If any field does not pass, ask 1-3 pointed questions that unblock the weakest fields. After the user answers, rescore all six fields and repeat. Be politely persistent: do not accept vague answers like "make it better," "use tests," "whatever files are needed," or "stop when done" when a stronger standard is needed.
+
+If the user says "just draft it" while a field is Weak or Missing, ask the minimum questions needed to fill the missing fields instead of drafting from assumptions.
+
+## Six-Aspect Standards
+
+Each field passes only when it meets the relevant standard:
+
+- Outcome: names the concrete end state, affected scope, and measurable or inspectable result.
+- Verification surface: names the exact tests, commands, benchmarks, artifacts, reports, logs, or source materials that prove completion.
+- Constraints: names what must not regress, including behavior, APIs, checks, performance thresholds, security/privacy limits, or documentation accuracy.
+- Boundaries: names allowed files, repos, tools, data, credentials, external sources, and any exclusions. "Whole repo allowed" can pass only if explicit.
+- Iteration policy: says how Codex should choose the next action after each attempt, such as nearest failing evidence, smallest targeted change, benchmark delta, risk reduction, or highest-value unresolved claim.
+- Blocked stop condition: says when to stop and what the blocker report must include, such as missing credentials, unavailable data, irreproducible flake, upstream defect, exhausted evidence paths, or budget reached.
 
 ## Draft Pattern
 
@@ -54,23 +84,21 @@ Keep the draft compact enough to paste, but include enough detail that another C
 
 ## Output Format
 
-Default to:
+When any field is Weak or Missing, output only questions:
 
-````markdown
-Draft goal:
+```markdown
+1. ...
+2. ...
+3. ...
+```
+
+When all six fields pass, output only a single plain-text `/goal ...` prompt line with no label or code fence:
 
 ```text
 /goal ...
 ```
 
-Why this works:
-- ...
-
-Assumptions:
-- ...
-````
-
-Omit "Assumptions" when the request already supplies the important details. Offer a shorter version only when the draft is bulky or the user asks for options.
+Do not include labels, rationale, scorecards, assumptions, caveats, setup steps, extra commands to run, or commentary in either mode.
 
 ## Examples
 
@@ -102,12 +130,15 @@ Strong draft:
 
 Before presenting the draft, verify that:
 
+- All six fields are Pass.
 - The outcome is specific enough to audit.
 - The evidence is named, not implied.
 - The constraints protect likely regressions.
 - The boundaries give Codex room to investigate without making the Goal unbounded.
 - The iteration policy says how to choose the next attempt.
 - The blocked condition prevents endless work or overclaiming.
+- The response is either only follow-up questions or only the final `/goal` prompt.
+- The response does not execute, start, create, activate, or work on the Goal.
 
 ## References
 
