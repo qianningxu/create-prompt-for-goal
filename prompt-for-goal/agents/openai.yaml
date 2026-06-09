@@ -1,4 +1,0 @@
-interface:
-  display_name: "Prompt for Goal"
-  short_description: "Pressure-test all six goal fields"
-  default_prompt: "Use $prompt-for-goal to ask questions until all six Goal fields pass, then output only the final `/goal` prompt."

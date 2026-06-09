@@ -1,9 +1,9 @@
 ---
-name: prompt-for-goal
+name: create-prompt-for-goal
 description: Interactively pressure-test vague, long-running, or evidence-sensitive user requests until all six Codex Goal aspects are strong, then output only a `/goal` prompt. Use when the user asks to write, draft, improve, review, or translate a task into a Codex Goal; mentions Goals, `/goal`, persistent objectives, evidence-based completion, "keep working until done", or wants help deciding whether a Goal or a normal prompt fits.
 ---
 
-# Prompt for Goal
+# Create Prompt for Goal
 
 ## Overview
 
