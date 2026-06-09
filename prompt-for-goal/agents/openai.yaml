@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prompt for Goal"
+  short_description: "Turn fuzzy work into Codex goals"
+  default_prompt: "Use $prompt-for-goal to turn this request into a clear Codex goal before starting work."
