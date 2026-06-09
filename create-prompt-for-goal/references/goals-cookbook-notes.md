@@ -29,7 +29,7 @@ Use these six ingredients:
 3. Constraints: behavior, checks, or scope that must not regress.
 4. Boundaries: files, tools, data, repositories, or resources Codex may use.
 5. Iteration policy: how to choose the next useful action after each attempt.
-6. Blocked stop condition: when to stop and report no valid path remains.
+6. Stop and report: when to stop and report no valid path remains.
 
 ## Readiness Standards
 
@@ -40,9 +40,9 @@ Before drafting a final Goal, pressure-test every ingredient:
 - Constraints should identify what must stay true or what risks matter most.
 - Boundaries should make allowed scope explicit, even when the allowed scope is broad.
 - Iteration policy should guide the next attempt after partial success or failure.
-- Blocked stop condition should define when continued work would become speculation, looping, or overclaiming.
+- Stop and report should define when continued work would become speculation, looping, or overclaiming.
 
-If any ingredient is missing or vague, ask targeted follow-up questions and rescore the Goal before drafting. Do not draft from assumptions when a field remains weak or missing.
+If any ingredient is missing or vague, ask targeted follow-up questions and rescore the Goal before drafting. Do not draft from assumptions when a required field remains weak or missing. `Stop and report` is required by default, but may be omitted if the user explicitly insists on ignoring it.
 
 ## Reusable Pattern
 
@@ -52,7 +52,7 @@ If any ingredient is missing or vague, ask targeted follow-up questions and resc
 
 ## Formatting Long Goal Prompts
 
-If the final Goal prompt is more than 50 words, prefer a sectioned prompt instead of one dense paragraph:
+Prefer a sectioned prompt instead of one dense paragraph:
 
 ```text
 /goal
@@ -66,10 +66,10 @@ Boundaries: <allowed files, tools, data, and exclusions>
 
 Iteration policy: <how to choose the next action>
 
-Blocked stop condition: <when to stop and what to report>
+Stop and report: <when to stop and what to report>
 ```
 
-The headings are part of the prompt. Do not add extra explanation around them.
+The headings are part of the prompt. Do not add extra explanation around them. If the user explicitly waives `Stop and report`, omit only that heading.
 
 ## Common Transformations
 

@@ -1,13 +1,13 @@
 ---
 name: create-prompt-for-goal
-description: Interactively pressure-test vague, long-running, or evidence-sensitive user requests until all six Codex Goal aspects are strong, then output only a `/goal` prompt. Use when the user asks to write, draft, improve, review, or translate a task into a Codex Goal; mentions Goals, `/goal`, persistent objectives, evidence-based completion, "keep working until done", or wants help deciding whether a Goal or a normal prompt fits.
+description: Interactively pressure-test vague, long-running, or evidence-sensitive user requests until Codex Goal components are strong, then output only a heading-structured `/goal` prompt. Use when the user asks to write, draft, improve, review, or translate a task into a Codex Goal; mentions Goals, `/goal`, persistent objectives, evidence-based completion, "keep working until done", or wants help deciding whether a Goal or a normal prompt fits. Stop and report may be omitted only if the user explicitly insists.
 ---
 
 # Create Prompt for Goal
 
 ## Overview
 
-Use this skill to help users turn plain-language work into a Codex Goal with a clear finish line, verification surface, constraints, boundaries, iteration policy, and blocked stop condition.
+Use this skill to help users turn plain-language work into a Codex Goal with heading-structured components: outcome, verification surface, constraints, boundaries, iteration policy, and stop-and-report policy.
 
 Never create, activate, execute, or work on the Goal. This skill only gathers missing Goal details and writes the final Goal prompt.
 
@@ -16,9 +16,9 @@ Never create, activate, execute, or work on the Goal. This skill only gathers mi
 1. Decide whether a Goal is appropriate.
 2. Extract the Goal contract from the user's request.
 3. Internally score all six contract fields as Pass, Weak, or Missing.
-4. If any field is Weak or Missing, output only targeted follow-up questions.
-5. Repeat until all six fields pass.
-6. When all six fields pass, output only the final `/goal` prompt. If the prompt is longer than 50 words, format it with short section headings and paragraphs.
+4. If any required field is Weak or Missing, output only targeted follow-up questions.
+5. Repeat until the first five fields pass and `Stop and report` either passes or is explicitly waived by the user.
+6. Output only the final `/goal` prompt with component headings.
 
 ## Goal Fit
 
@@ -39,11 +39,11 @@ Capture these six fields before drafting:
 - Constraints: what must not regress or be violated.
 - Boundaries: which files, repositories, tools, data, or resources Codex may use.
 - Iteration policy: how Codex should choose the next action after each attempt.
-- Blocked stop condition: when Codex should stop and report that no defensible path remains.
+- Stop and report: when Codex should stop and what it should report if no defensible path remains. This component is required by default, but the user may explicitly choose to omit it.
 
 ## Readiness Gate
 
-Do not present a final Goal while any field is Weak or Missing.
+Do not present a final Goal while any required field is Weak or Missing.
 
 Use this internal scorecard before drafting, but do not show it unless the user explicitly asks for the evaluation:
 
@@ -54,12 +54,14 @@ Goal readiness:
 - Constraints: Pass/Weak/Missing - <why>
 - Boundaries: Pass/Weak/Missing - <why>
 - Iteration policy: Pass/Weak/Missing - <why>
-- Blocked stop condition: Pass/Weak/Missing - <why>
+- Stop and report: Pass/Weak/Missing/Waived - <why>
 ```
 
 If any field does not pass, ask 1-3 pointed questions that unblock the weakest fields. After the user answers, rescore all six fields and repeat. Be politely persistent: do not accept vague answers like "make it better," "use tests," "whatever files are needed," or "stop when done" when a stronger standard is needed.
 
-If the user says "just draft it" while a field is Weak or Missing, ask the minimum questions needed to fill the missing fields instead of drafting from assumptions.
+If the user says "just draft it" while one of the first five fields is Weak or Missing, ask the minimum questions needed to fill the missing fields instead of drafting from assumptions.
+
+If only `Stop and report` is Weak or Missing and the user explicitly insists on ignoring it, mark it Waived internally and omit that heading from the final prompt. Do not waive it silently.
 
 ## Six-Aspect Standards
 
@@ -70,17 +72,11 @@ Each field passes only when it meets the relevant standard:
 - Constraints: names what must not regress, including behavior, APIs, checks, performance thresholds, security/privacy limits, or documentation accuracy.
 - Boundaries: names allowed files, repos, tools, data, credentials, external sources, and any exclusions. "Whole repo allowed" can pass only if explicit.
 - Iteration policy: says how Codex should choose the next action after each attempt, such as nearest failing evidence, smallest targeted change, benchmark delta, risk reduction, or highest-value unresolved claim.
-- Blocked stop condition: says when to stop and what the blocker report must include, such as missing credentials, unavailable data, irreproducible flake, upstream defect, exhausted evidence paths, or budget reached.
+- Stop and report: says when to stop and what the blocker report must include, such as missing credentials, unavailable data, irreproducible flake, upstream defect, exhausted evidence paths, or budget reached. It may be omitted only when the user explicitly waives it.
 
 ## Draft Pattern
 
-Use this shape, adapting it to the user's domain:
-
-```text
-/goal Achieve <outcome>, validated by <specific evidence>, while maintaining <constraints>. Work within <boundaries>. After each attempt, <iteration policy>. If the goal cannot be verified under these limits, stop with <blocked report>.
-```
-
-For prompts longer than 50 words, use section headings inside the prompt:
+Always use component headings inside the prompt:
 
 ```text
 /goal
@@ -94,10 +90,10 @@ Boundaries: <allowed files, tools, data, and exclusions>
 
 Iteration policy: <how to choose the next action>
 
-Blocked stop condition: <when to stop and what to report>
+Stop and report: <when to stop and what to report>
 ```
 
-Keep the draft compact enough to paste, but include enough detail that another Codex thread can tell when to complete, continue, or stop. Headings in the long format are part of the prompt, not commentary.
+If the user explicitly waives `Stop and report`, omit only that heading and keep the other five headings. Keep the draft compact enough to paste, but include enough detail that another Codex thread can tell when to complete, continue, or stop. Headings are part of the prompt, not commentary.
 
 ## Output Format
 
@@ -109,13 +105,7 @@ When any field is Weak or Missing, output only questions:
 3. ...
 ```
 
-When all six fields pass and the prompt is 50 words or fewer, output only a single plain-text `/goal ...` prompt line with no label or code fence:
-
-```text
-/goal ...
-```
-
-When all six fields pass and the prompt is more than 50 words, output only the sectioned prompt:
+When all required fields pass, output only the sectioned prompt:
 
 ```text
 /goal
@@ -129,8 +119,10 @@ Boundaries: ...
 
 Iteration policy: ...
 
-Blocked stop condition: ...
+Stop and report: ...
 ```
+
+If `Stop and report` is explicitly waived, omit that heading.
 
 Do not include labels outside the prompt, rationale, scorecards, assumptions, caveats, setup steps, extra commands to run, or commentary in either mode.
 
@@ -156,7 +148,7 @@ Boundaries: Work only in migration-related packages, tests, and configuration.
 
 Iteration policy: After each failed run, inspect the nearest failing evidence, make the smallest targeted change, and rerun the relevant check before broadening scope.
 
-Blocked stop condition: If required upstream fixes or credentials are unavailable, stop with a blocker report naming the missing dependency and evidence collected.
+Stop and report: If required upstream fixes or credentials are unavailable, stop with a blocker report naming the missing dependency and evidence collected.
 ```
 
 Weak request:
@@ -179,22 +171,23 @@ Boundaries: Use only the available paper, data, local resources, and reproducibl
 
 Iteration policy: After each attempt, prioritize the feasible claim with the highest evidence value.
 
-Blocked stop condition: If exact reproduction is blocked by missing data, seeds, checkpoints, or implementation details, stop with an audit separating confirmed, partially supported, and blocked claims.
+Stop and report: If exact reproduction is blocked by missing data, seeds, checkpoints, or implementation details, stop with an audit separating confirmed, partially supported, and blocked claims.
 ```
 
 ## Quality Checks
 
 Before presenting the draft, verify that:
 
-- All six fields are Pass.
+- The first five fields are Pass, and `Stop and report` is Pass or explicitly Waived.
 - The outcome is specific enough to audit.
 - The evidence is named, not implied.
 - The constraints protect likely regressions.
 - The boundaries give Codex room to investigate without making the Goal unbounded.
 - The iteration policy says how to choose the next attempt.
-- The blocked condition prevents endless work or overclaiming.
+- The `Stop and report` heading prevents endless work or overclaiming, unless the user explicitly waived it.
 - The response is either only follow-up questions or only the final `/goal` prompt.
-- A final prompt longer than 50 words is split into paragraphs with the six section headings.
+- The final prompt uses component headings.
+- All six headings are present unless `Stop and report` was explicitly waived.
 - The response does not execute, start, create, activate, or work on the Goal.
 
 ## References
